@@ -1,21 +1,45 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+
+import 'react-toastify/dist/ReactToastify.css';
+import { ToastContainer, toast } from 'react-toastify';
+import { registerWithEmailAndPassword } from "../firebase/firebase";
 const SignUp = () => {
+  const navigate = useNavigate("")
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
+  const handelSubmit = async (e) => {
+    e.preventDefault();
+    try{
+      await registerWithEmailAndPassword(name, email, password)
+      toast.success("Signedup  Successfull, Please verify your email and login", {
+        onClose: ()=> navigate('/login'),
+        toastId: "success2",
+      })
+    } catch (error) {
+      toast.error(`An error occurred during singup): ${error.message}`)
+    }
+  }
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-2xl font-bold text-center mb-6">Create an Account</h2>
-        <form className="space-y-4">
+        <form 
+        onSubmit={handelSubmit}
+        className="space-y-4">
           {/* Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="name"className="block text-sm font-medium text-gray-700">
               Name
             </label>
             <input
               id="name"
               type="text"
+              value={name}
+              onChange={(e)=> setName(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your name"
               required
@@ -29,6 +53,8 @@ const SignUp = () => {
             <input
               id="email"
               type="email"
+              value={email}
+              onChange={(e)=> setEmail(e.target.value)}
               className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               placeholder="Enter your email"
               required
@@ -42,6 +68,8 @@ const SignUp = () => {
             <div className="relative">
               <input
                 id="password"
+                value={password}
+                onChange={(e)=> setPassword(e.target.value)}
                 type={showPassword ? "text" : "password"}
                 className="mt-1 block w-full p-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Enter your password"
