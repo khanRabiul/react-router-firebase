@@ -1,34 +1,90 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { toast } from "react-toastify";
+import { handleSignUp } from "../firebase/authHandlers";
+import {
+  loginWithGoogle,
+  loginWihtFacebook,
+  loginWithGithub,
+  registerWithEmailAndPassword
+} from "../firebase/firebase"
 
-import 'react-toastify/dist/ReactToastify.css';
-import { ToastContainer, toast } from 'react-toastify';
-import { registerWithEmailAndPassword } from "../firebase/firebase";
 const SignUp = () => {
-  const navigate = useNavigate("")
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
-  const handelSubmit = async (e) => {
+  // Form submit handler
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    try{
-      await registerWithEmailAndPassword(name, email, password)
-      toast.success("Signedup  Successfull, Please verify your email and login", {
-        onClose: ()=> navigate('/login'),
-        toastId: "success2",
+    try {
+      await registerWithEmailAndPassword(name, email, password);
+      toast.success("A verification Email has been sent. Please verify your account.", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    } catch (error) {
+      toast.error(error.message || "Signup failed", {
+        position: "top-center",
+        autoClose: 3000,
+      });
+    }
+  };
+
+  // Form google signup handler
+/*   const handleGoogleSignUp = async () => {
+    try {
+      const user = await loginWithGoogle();
+      toast.success(`Welcome ${user.displayName}`, {
+        position: "top-center",
+        autoClose: 3000,
       })
     } catch (error) {
-      toast.error(`An error occurred during singup): ${error.message}`)
+      toast.error(error.message || 'Google sign-up failed', {
+        position: "top-center",
+        autoClose: 3000,
+      })
     }
-  }
+  };
+ */
+    // Social login handlers using reusable function
+    
+    const handleGoogleSignUp = () => handleSignUp(loginWithGoogle, "Google");
+    const handleFacebookSignUp = () => handleSignUp(loginWihtFacebook, "Facebook");
+    const handleGithubSignUp = () => handleSignUp(loginWithGithub, "GitHub");
+
+  // Form github signup handler
+/*   const handleGithubSignUp = async () => {
+    try {
+      const user = await loginWithGithub();
+      toast.success(Welcome ${user.displayName})
+    } catch (error) {
+      toast.error(error.message || 'Github sign-up failed')
+    }
+  }; */
+
+  // Form facebook signup handler
+/*   const handleFacebookSignUp = async () => {
+    try {
+      if(password.length < 6) {
+        toast.error("Password must be at least 6 characters.")
+        return;
+      }
+      const user = await loginWihtFacebook();
+      toast.success(`Welcome ${user.displayName}`)
+    } catch (error) {
+      toast.error(error.message || 'Facebook sign-up failed')
+    }
+  }; */
+
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md bg-white shadow-lg rounded-lg p-6">
         <h2 className="text-2xl font-bold text-center mb-6">Create an Account</h2>
         <form 
-        onSubmit={handelSubmit}
+        onSubmit={handleSubmit}
         className="space-y-4">
           {/* Name */}
           <div>
@@ -112,6 +168,7 @@ const SignUp = () => {
         <div className="space-y-3">
           <button
             type="button"
+            onClick={handleGoogleSignUp}
             className="w-full flex items-center justify-center bg-red-500 text-white py-2 rounded-md hover:bg-red-600"
           >
             <svg
@@ -129,6 +186,7 @@ const SignUp = () => {
           </button>
           <button
             type="button"
+            onClick={handleFacebookSignUp}
             className="w-full flex items-center justify-center bg-gray-800 text-white py-2 rounded-md hover:bg-gray-900"
           >
             <svg
@@ -143,6 +201,7 @@ const SignUp = () => {
           </button>
           <button
             type="button"
+            onClick={handleGithubSignUp}
             className="w-full flex items-center justify-center bg-gray-900 text-white py-2 rounded-md hover:bg-gray-700"
           >
             <svg
